@@ -6,7 +6,7 @@ Base = declarative_base()
 
 class IncomeStatement(Base):
 
-    __table__ = "income_statement"
+    __tablename__ = "income_statements"
 
     id = Column(Integer, primary_key=True, autoincrement=True, comment="Unique ID for each record")
     symbol = Column(String(10), nullable=False, comment="Stock ticker symbol (e.g., AAPL)")
@@ -31,5 +31,30 @@ class IncomeStatement(Base):
     period = Column(String(5), comment='Reporting period, typically "FY" for fiscal year')
 
     __table_args__ = (
-        UniqueConstraint('symbol', 'date', name='unique_symbol_date')
+        UniqueConstraint('symbol', 'date', name='unique_symbol_date'),
     )
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'symbol': self.symbol,
+            'date': self.date.isoformat() if self.date else None,
+            'revenue': self.revenue,
+            'gross_profit': self.gross_profit,
+            'gross_profit_ratio': self.gross_profit_ratio,
+            'operating_income': self.operating_income,
+            'operating_income_ratio': self.operating_income_ratio,
+            'net_income': self.net_income,
+            'net_income_ratio': self.net_income_ratio,
+            'eps': self.eps,
+            'operating_expenses': self.operating_expenses,
+            'research_and_development_expenses': self.research_and_development_expenses,
+            'income_tax_expense': self.income_tax_expense,
+            'depreciation_and_amortization': self.depreciation_and_amortization,
+            'ebitda': self.ebitda,
+            'total_other_income_expenses_net': self.total_other_income_expenses_net,
+            'reported_currency': self.reported_currency,
+            'filling_date': self.filling_date.isoformat() if self.filling_date else None,
+            'accepted_date': self.accepted_date.isoformat() if self.accepted_date else None,
+            'period': self.period
+        }
