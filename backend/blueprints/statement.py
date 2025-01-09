@@ -1,22 +1,45 @@
+import os
+
 from flask import Blueprint, jsonify, request
-from fundamental_fetcher import FundamentalFetcher
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from filters.income_filter import IncomeFilter
+from handlers.income_handler import IncomeHandler
+from settings import DATABASE_NAME, HOST
 
 statement_bp = Blueprint("statement", __name__)
 
-fundamental_fetcher = FundamentalFetcher()
+engine = create_engine(f"mysql+pymysql://root:{os.getenv('PASSWORD')}@{HOST}/{DATABASE_NAME}")
+Session = sessionmaker(bind=engine)
+session = Session()
+
+income_handler = IncomeHandler(session)
 
 
-@statement_bp.route("/statement", methods=["GET"])
-def get_statement():
-    company_symbol = request.args.get("company-symbol")         # company symbol
-    period = request.args.get("period")  # annual, quarter
+@statement_bp.route("/income-statement", methods=["GET"])
+def get_income_statement():
+    symbol = request.args.get("symbol")         # company symbol
 
-    statement_type = request.args.get("statement-type")         # balance/income/cash flow
-    # type validation
-    if statement_type not in ["income-statement", "balance-sheet-statement", "cash-flow-statement"]:
-        return jsonify({"error": "invalid statement type"})
+    filters = {
+        "date_range": {
+            "start": request.args.get("start_date"),
+            "end": request.args.get("end_date")
+        },
+        "revenue_range": {
+            "min": request.args.get("min_revenue", 0),
+            "max": request.args.get("max_revenue", float("inf"))
+        },
+        "net_income_range": {
+            "min": request.args.get("min_revenue", 0),
+            "max": request.args.get("max_revenue", float("inf"))
+        }
+    }
 
-    data = fundamental_fetcher.fetch_statement(company_symbol=company_symbol,
-                                               statement_type=statement_type,
-                                               period=period)
-    return jsonify(data)
+    # should be reading from db, fetch should be separate
+    income_filter = IncomeFilter(session)
+    records = income_filter.get_filtered_records(symbol=symbol, filters=filters)
+
+    records = [record.to_dict() for record in records]
+
+    return jsonify({"data": records})
