@@ -1,6 +1,12 @@
 import requests
 import os
 
+from handlers.income_handler import IncomeHandler
+from settings import *
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+
 class FundamentalFetcher:
 
     def __init__(self):
@@ -20,3 +26,18 @@ class FundamentalFetcher:
                 return data
         except Exception as e:
             print(e)
+
+
+if __name__ == '__main__':
+    fetcher = FundamentalFetcher()
+    data = fetcher.fetch_statement("AAPL")
+    print(data)
+    engine = create_engine(f"mysql+pymysql://root:{os.getenv('PASSWORD')}@{HOST}/{DATABASE_NAME}")
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    income_handler = IncomeHandler(session)
+
+    for item in data:
+        income_handler.create(item)
+    print("ok")
