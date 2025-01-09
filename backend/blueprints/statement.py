@@ -31,8 +31,8 @@ def get_income_statement():
             "max": request.args.get("max_revenue", float("inf"))
         },
         "net_income_range": {
-            "min": request.args.get("min_revenue", 0),
-            "max": request.args.get("max_revenue", float("inf"))
+            "min": request.args.get("min_net_income", 0),
+            "max": request.args.get("max_net_income", float("inf"))
         }
     }
 
