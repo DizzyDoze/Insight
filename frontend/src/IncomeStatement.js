@@ -302,7 +302,7 @@ const IncomeStatement = () => {
                 />
                 <button 
                     onClick={fetchData}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    className="flex h-full flex-row items-center justify-center rounded-lg border border-gray-800 px-4 py-2 align-middle text-gray-800 hover:shadow-buttonSecondary focus:border-gray-900 focus:text-gray-900"
                 >
                     Fetch Data
                 </button>
