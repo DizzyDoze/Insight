@@ -18,6 +18,15 @@ const IncomeStatement = () => {
         eps: { min: 0, max: 10 }
     };
 
+    // Reset state to initial values
+    const resetState = () => {
+        setStatements([]);
+        setFilteredStatements([]);
+        setRanges(defaultRanges);
+        setFilters(defaultRanges);
+        setSortConfig({ key: null, direction: "asc" });
+    };
+
     // raw data from API response
     const [statements, setStatements] = useState([]);
     // filterred and sorted data for display
@@ -43,6 +52,12 @@ const IncomeStatement = () => {
             console.log("Fetching from:", url);
             const response = await fetch(url);
             const data = await response.json();
+            
+            // If no data or empty array, reset state
+            if (!data.data || data.data.length === 0) {
+                resetState();
+                return;
+            }
             
             // Update the statements
             setStatements(data.data);
@@ -88,6 +103,7 @@ const IncomeStatement = () => {
             applyFiltersAndSort();
         } catch (e) {
             console.log("Error fetching data: ", e);
+            resetState();
         }
     };
 
