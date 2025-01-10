@@ -1,10 +1,11 @@
 from flask import Flask
-
+from flask_cors import CORS
 from blueprints.statement import statement_bp
 
 app = Flask(__name__)
 app.register_blueprint(statement_bp, url_prefix="/api")
 
+CORS(app)
 
 @app.route("/")
 def index():
