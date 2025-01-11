@@ -41,18 +41,20 @@ class IncomeHandler:
 
     def read(self, symbol, page=1, offset=10):
         try:
-            total = self.__session.query(IncomeStatement.id).filter(IncomeStatement.symbol == symbol)
+            total = self.__session.query(IncomeStatement.id).filter(IncomeStatement.symbol == symbol).count()
             records = (self.__session.query(IncomeStatement)
-                       .filter(IncomeStatement.symbol == symbol)
-                       .order_by(IncomeStatement.date.desc())
-                       .offset((page - 1) * offset).all())
+                      .filter(IncomeStatement.symbol == symbol)
+                      .order_by(IncomeStatement.date.desc())
+                      .offset((page - 1) * offset)
+                      .limit(offset)
+                      .all())
             return {
-                "data": [record for record in records],
+                "data": [record.to_dict() for record in records],
                 "pagination": {
                     "total": total,
                     "page": page,
                     "offset": offset,
-                    "pages": (total + offset - 1) // offset
+                    "pages": (total + offset - 1) // offset if total > 0 else 0
                 },
                 "message": "Records retrieved successfully"
             }
