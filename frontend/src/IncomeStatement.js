@@ -35,7 +35,7 @@ const IncomeStatement = () => {
 
     // raw data from API response
     const [statements, setStatements] = useState([]);
-    // filterred and sorted data for display
+    // filtered and sorted data for display
     const [filteredStatements, setFilteredStatements] = useState([]);
     // configuration for sorting: column(date, revenue, etc), order(asc, desc)
     const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc"})
@@ -195,10 +195,15 @@ const IncomeStatement = () => {
     useEffect(() => {
         if (statements && statements.length > 0) {
             calculateRanges();
-            applyFiltersAndSort();
         }
     }, [statements]);
 
+
+    useEffect(() => {
+        if (statements && statements.length > 0) {
+            applyFiltersAndSort();
+        }
+    }, [filters, sortConfig, statements]);  // Re-apply filters and sort when sortConfig&filters changes
     /**
      * Applies filters and sorting to the data
      */
@@ -240,15 +245,7 @@ const IncomeStatement = () => {
             direction = sortConfig.direction === "asc" ? "desc" : "asc";
         }
         setSortConfig({ key, direction });
-        applyFiltersAndSort(); // Apply sorting immediately
     };
-
-    /**
-     * Reapplies filters and sort when sortConfig changes
-     */
-    useEffect(() => {
-        applyFiltersAndSort();
-    }, [sortConfig]); // Re-apply filters and sort when sortConfig changes
 
     /**
      * Renders a filter slider for a specific field
