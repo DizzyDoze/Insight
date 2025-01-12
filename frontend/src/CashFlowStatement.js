@@ -3,8 +3,12 @@ import { Card, CardHeader, CardTitle, CardContent } from './components/ui/card';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Slider } from './components/ui/slider';
 
+/**
+ * Component for displaying and filtering cash flow statements
+ * @returns The rendered cash flow statement component
+ */
 const CashFlowStatement = () => {
-    // Initial ranges with sensible defaults
+    // Initial ranges with sensible defaults for financial metrics [-1B to 1B]
     const defaultRanges = {
         date: {
             min: new Date("2000-01-01").getTime(),
@@ -17,7 +21,9 @@ const CashFlowStatement = () => {
         net_change_in_cash: { min: -1000000000, max: 1000000000 }
     };
 
-    // Reset state to initial values
+    /**
+     * Resets all state values to their defaults
+     */
     const resetState = () => {
         setStatements([]);
         setFilteredStatements([]);
@@ -26,22 +32,27 @@ const CashFlowStatement = () => {
         setSortConfig({ key: null, direction: "asc" });
     };
 
-    // state management
-    const [statements, setStatements] = useState([]);
-    const [filteredStatements, setFilteredStatements] = useState([]);
-    const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc"});
-    const [symbol, setSymbol] = useState("");
-    const [filters, setFilters] = useState(defaultRanges);
-    const [ranges, setRanges] = useState(defaultRanges);
+    // State management for component data
+    const [statements, setStatements] = useState([]); // Raw data from API
+    const [filteredStatements, setFilteredStatements] = useState([]); // Filtered and sorted data
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc"}); // Sorting configuration
+    const [symbol, setSymbol] = useState(""); // Stock symbol to fetch
+    const [filters, setFilters] = useState(defaultRanges); // Current filter values
+    const [ranges, setRanges] = useState(defaultRanges); // Available range limits
 
-    // fetch initial data on component mount
+    /**
+     * Fetches initial data when component mounts
+     */
     useEffect(() => {
         fetchData();
     }, []);
 
     const BASE_URL = "http://localhost:8080/api/cash-flow-statement";
 
-    // fetch data from backend api
+    /**
+     * Fetches cash flow statement data from backend API
+     * Updates state with new data and recalculates ranges
+     */
     const fetchData = async () => {
         try {
             const url = `${BASE_URL}?symbol=${symbol}`;
@@ -103,19 +114,73 @@ const CashFlowStatement = () => {
         }
     };
 
-    // Handle Enter key press for symbol input
+    /**
+     * Handles Enter key press for symbol input
+     * @param {KeyboardEvent} e
+     */
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             fetchData();
         }
     };
 
-    // Calculate step size based on range
+    /**
+     * Calculates appropriate step size for slider based on field type
+     * @param {string} key - Field name
+     * @param {number} min - Minimum value
+     * @param {number} max - Maximum value
+     * @returns {number} Calculated step size
+     */
     const calculateStep = (key, min, max) => {
         if (key === 'date') return 24 * 60 * 60; // One day
         return Math.max(10, Math.floor((max - min) / 1000)); // At least $10 or 1/1000th of range
     };
 
+    /**
+     * Calculates actual min/max ranges from current statement data
+     * Updates ranges state with new calculated values
+     */
+    const calculateRanges = () => {
+        const newRanges = {
+            date: {
+                min: Math.min(...statements.map(d => new Date(d.date).getTime())),
+                max: Math.max(...statements.map(d => new Date(d.date).getTime()))
+            },
+            net_cash_provided_by_operating_activities: {
+                min: Math.min(...statements.map(d => d.net_cash_provided_by_operating_activities)),
+                max: Math.max(...statements.map(d => d.net_cash_provided_by_operating_activities))
+            },
+            net_cash_used_for_investing_activities: {
+                min: Math.min(...statements.map(d => d.net_cash_used_for_investing_activities)),
+                max: Math.max(...statements.map(d => d.net_cash_used_for_investing_activities))
+            },
+            net_cash_used_provided_by_financing_activities: {
+                min: Math.min(...statements.map(d => d.net_cash_used_provided_by_financing_activities)),
+                max: Math.max(...statements.map(d => d.net_cash_used_provided_by_financing_activities))
+            },
+            free_cash_flow: {
+                min: Math.min(...statements.map(d => d.free_cash_flow)),
+                max: Math.max(...statements.map(d => d.free_cash_flow))
+            },
+            net_change_in_cash: {
+                min: Math.min(...statements.map(d => d.net_change_in_cash)),
+                max: Math.max(...statements.map(d => d.net_change_in_cash))
+            }
+        };
+        setRanges(newRanges);
+    };
+
+    /**
+     * Updates ranges whenever statements data changes
+     */
+    useEffect(() => {
+        calculateRanges();
+    }, [statements]);
+
+    /**
+     * Applies current filters and sorting to statements data
+     * Updates filteredStatements state with results
+     */
     const applyFiltersAndSort = () => {
         // Filter statements based on current filters
         let filtered = [...statements].filter(statement => {
@@ -143,7 +208,10 @@ const CashFlowStatement = () => {
         setFilteredStatements(filtered);
     };
 
-    // Handle column header clicks for sorting
+    /**
+     * Handles column header clicks for sorting
+     * @param {string} key - Column to sort by
+     */
     const handleSort = (key) => {
         let direction = "asc";
         if (sortConfig.key === key) {
@@ -152,10 +220,20 @@ const CashFlowStatement = () => {
         setSortConfig({ key, direction });
     };
 
+    /**
+     * Reapplies filters and sort when sortConfig changes
+     */
     useEffect(() => {
         applyFiltersAndSort();
     }, [sortConfig, filters]); // Re-apply filters and sort when sortConfig or filters change
 
+    /**
+     * Renders a filter slider for a specific field
+     * @param {string} key - Field name to filter
+     * @param {string} label - Display label for the filter
+     * @param {boolean} isDate - Whether the field is a date
+     * @returns {JSX.Element} Rendered filter slider component
+     */
     const filterSlider = (key, label, isDate = false) => {
         const range = ranges[key];
         const currentValue = filters[key];
@@ -192,6 +270,11 @@ const CashFlowStatement = () => {
         );
     };
     
+    /**
+     * Formats a number as a currency string
+     * @param {number} num - Number to format
+     * @returns {string} Formatted currency string
+     */
     const formatNumber = (num) => {
         if (num === Infinity || num === undefined) return '$∞';
         return new Intl.NumberFormat('en-US', {
@@ -202,6 +285,11 @@ const CashFlowStatement = () => {
         }).format(num);
     };
     
+    /**
+     * Formats a timestamp as a date string
+     * @param {number} timestamp - Unix timestamp to format
+     * @returns {string} Formatted date string
+     */
     const formatDate = (timestamp) => {
         return new Date(timestamp).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -209,6 +297,11 @@ const CashFlowStatement = () => {
         });
     };
     
+    /**
+     * Renders sort direction icon for a column
+     * @param {string} key - Column name
+     * @returns {JSX.Element} Rendered sort icon component
+     */
     const renderSortIcon = (key) => {
         if (sortConfig.key !== key) {
             return <ChevronUp className="opacity-30 h-4 w-4" />;

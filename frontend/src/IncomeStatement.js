@@ -3,8 +3,12 @@ import { Card, CardHeader, CardTitle, CardContent } from './components/ui/card';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Slider } from './components/ui/slider';
 
+/**
+ * Component for displaying and filtering income statements
+ * @returns The rendered income statement component
+ */
 const IncomeStatement = () => {
-    // Initial ranges with sensible defaults
+    // Initial ranges with sensible defaults for financial metrics [0, 1 billion]
     const defaultRanges = {
         date: {
             min: new Date("2000-01-01").getTime(),
@@ -18,7 +22,9 @@ const IncomeStatement = () => {
         eps: { min: 0, max: 10 }
     };
 
-    // Reset state to initial values
+    /**
+     * Resets the component state to its initial values
+     */
     const resetState = () => {
         setStatements([]);
         setFilteredStatements([]);
@@ -38,14 +44,18 @@ const IncomeStatement = () => {
     const [filters, setFilters] = useState(defaultRanges);
     const [ranges, setRanges] = useState(defaultRanges);
 
-    // fetch initial data on component mount
+    /**
+     * Fetches the initial data on component mount
+     */
     useEffect(() => {
         fetchData();
     }, []);
 
     const BASE_URL = "http://localhost:8080/api/income-statement";
 
-    // fetch data from backend
+    /**
+     * Fetches data from the backend API
+     */
     const fetchData = async () => {
         try {
             const url = `${BASE_URL}?symbol=${symbol}`;
@@ -107,21 +117,32 @@ const IncomeStatement = () => {
         }
     };
 
-    // Handle Enter key press for symbol input
+    /**
+     * Handles Enter key press for symbol input
+     * @param {KeyboardEvent} e 
+     */
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             fetchData();
         }
     };
 
-    // Calculate step size based on range
+    /**
+     * Calculates the step size based on the range
+     * @param {string} key 
+     * @param {number} min 
+     * @param {number} max 
+     * @returns The calculated step size
+     */
     const calculateStep = (key, min, max) => {
         if (key === 'date') return 24 * 60 * 60; // One day
         if (key === 'eps') return 0.01; // Small offset for EPS
         return Math.max(10, Math.floor((max - min) / 1000)); // At least $10 or 1/1000th of range
     };
 
-    // once we get the data response, calculate actual range(min, max) for each field
+    /**
+     * Calculates the actual range(min, max) for each field
+     */
     const calculateRanges = () => {
         if (!statements || statements.length === 0) {
             console.log("No statements data available");
@@ -168,7 +189,9 @@ const IncomeStatement = () => {
         });
     }
 
-    // Calculate ranges whenever statements data changes(only after we get valid statements)
+    /**
+     * Calculates ranges whenever statements data changes(only after we get valid statements)
+     */
     useEffect(() => {
         if (statements && statements.length > 0) {
             calculateRanges();
@@ -176,6 +199,9 @@ const IncomeStatement = () => {
         }
     }, [statements]);
 
+    /**
+     * Applies filters and sorting to the data
+     */
     const applyFiltersAndSort = () => {
         // [...statements] creates a copy, filter each statement using lambda function defined inside
         let filtered = [...statements].filter(statement => {
@@ -203,7 +229,10 @@ const IncomeStatement = () => {
         setFilteredStatements(filtered);
     }
 
-    // hanlder column header clicks for sorting
+    /**
+     * Handles column header clicks for sorting
+     * @param {string} key 
+     */
     const handleSort = (key) => {
         let direction = "asc";
         // only toggle the direction if we are clicking the same title
@@ -214,10 +243,20 @@ const IncomeStatement = () => {
         applyFiltersAndSort(); // Apply sorting immediately
     };
 
+    /**
+     * Reapplies filters and sort when sortConfig changes
+     */
     useEffect(() => {
         applyFiltersAndSort();
     }, [sortConfig]); // Re-apply filters and sort when sortConfig changes
 
+    /**
+     * Renders a filter slider for a specific field
+     * @param {string} key 
+     * @param {string} label 
+     * @param {boolean} isDate 
+     * @returns The rendered filter slider
+     */
     const filterSlider = (key, label, isDate = false) => {
         const range = ranges[key];
         const currentValue = filters[key];
@@ -255,6 +294,11 @@ const IncomeStatement = () => {
         );
     };
     
+    /**
+     * Formats a number as a currency string
+     * @param {number} num 
+     * @returns The formatted currency string
+     */
     const formatNumber = (num) => {
         if (num === Infinity || num === undefined) return '$∞';
         return new Intl.NumberFormat('en-US', {
@@ -265,6 +309,11 @@ const IncomeStatement = () => {
         }).format(num);
       };
     
+    /**
+     * Formats a date as a string
+     * @param {number} timestamp 
+     * @returns The formatted date string
+     */
     const formatDate = (timestamp) => {
       return new Date(timestamp).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -272,6 +321,11 @@ const IncomeStatement = () => {
       });
     };
     
+    /**
+     * Renders a sort icon for a specific column
+     * @param {string} key 
+     * @returns The rendered sort icon
+     */
     const renderSortIcon = (key) => {
       if (sortConfig.key !== key) {
         return <ChevronUp className="opacity-30 h-4 w-4" />;
