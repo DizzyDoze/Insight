@@ -238,11 +238,11 @@ const BalanceSheetStatement = () => {
                             placeholder="Enter company symbol (e.g., AAPL)"
                             className="px-3 py-2 border rounded-md flex-grow"
                         />
-                        <button
+                        <button 
                             onClick={fetchData}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            className="flex h-full flex-row items-center justify-center rounded-lg border border-gray-800 px-4 py-2 align-middle text-gray-800 hover:shadow-buttonSecondary focus:border-gray-900 focus:text-gray-900"
                         >
-                            Search
+                            Fetch Data
                         </button>
                     </div>
                 </CardHeader>
