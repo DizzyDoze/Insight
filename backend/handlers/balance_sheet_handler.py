@@ -1,11 +1,25 @@
 from sqlalchemy.exc import SQLAlchemyError
 from models.balance_sheet_statement import BalanceSheetStatement
 
+
 class BalanceSheetHandler:
+    """
+    class for MySQL operations, create, read, update and delete.
+
+    Attributes:
+
+    __session: session for MySQL db connection
+    """
     def __init__(self, session):
         self.__session = session
 
     def create(self, data):
+        """
+        insert a new row of balance sheet statement into db from the give data
+
+        :param data: dict like data of statements we fetched from FMP API
+        :return: dict with the message and statement.id
+        """
         try:
             balance_sheet = BalanceSheetStatement(
                 symbol=data["symbol"],
@@ -72,14 +86,23 @@ class BalanceSheetHandler:
             return {"error": str(e)}
 
     def read(self, symbol, page=1, offset=10):
+        """
+        retrieve statements with pagination based on given symbol
+
+        :param symbol: company symbol
+        :param page: page number, default 1
+        :param offset: per page number, default 10
+        :return: dict with the statements list, page info and message
+        """
         try:
-            total = self.__session.query(BalanceSheetStatement.id).filter(BalanceSheetStatement.symbol == symbol).count()
+            total = self.__session.query(BalanceSheetStatement.id).filter(
+                BalanceSheetStatement.symbol == symbol).count()
             records = (self.__session.query(BalanceSheetStatement)
-                      .filter(BalanceSheetStatement.symbol == symbol)
-                      .order_by(BalanceSheetStatement.date.desc())
-                      .offset((page - 1) * offset)
-                      .limit(offset)
-                      .all())
+                       .filter(BalanceSheetStatement.symbol == symbol)
+                       .order_by(BalanceSheetStatement.date.desc())
+                       .offset((page - 1) * offset)
+                       .limit(offset)
+                       .all())
             return {
                 "data": [record.to_dict() for record in records],
                 "pagination": {
@@ -94,6 +117,13 @@ class BalanceSheetHandler:
             return {"error": str(e)}
 
     def update(self, id, data):
+        """
+        update statement based on given statement id and new data
+
+        :param id: statement unique id
+        :param data: new data for updating
+        :return: message of success or not
+        """
         try:
             record = self.__session.query(BalanceSheetStatement).filter(BalanceSheetStatement.id == id).first()
             if not record:
@@ -109,6 +139,12 @@ class BalanceSheetHandler:
             return {"error": str(e)}
 
     def delete(self, id):
+        """
+        delete statements based on the statement id
+
+        :param id: statement unique id
+        :return: message of success or not
+        """
         try:
             record = self.__session.query(BalanceSheetStatement).filter(BalanceSheetStatement.id == id).first()
             if not record:
