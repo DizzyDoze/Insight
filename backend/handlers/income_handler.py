@@ -4,10 +4,26 @@ from models.income_statement import IncomeStatement
 
 
 class IncomeHandler:
+    """
+    MySQL operations on income statements, handling create, read, update and delete.
+
+    Attributes:
+        __session: SQLAlchemy session for MySQL database connection
+    """
+
     def __init__(self, session):
         self.__session = session
 
     def create(self, data):
+        """
+        Insert a new income statement into database from the given data.
+
+        Args:
+            data (dict): Dictionary containing income statement data from FMP API
+
+        Returns:
+            dict: Message indicating success/failure and the record ID if successful
+        """
         try:
             income_statement = IncomeStatement(
                 symbol=data["symbol"],
@@ -40,14 +56,25 @@ class IncomeHandler:
             return {"error": str(e)}
 
     def read(self, symbol, page=1, offset=10):
+        """
+        Retrieve income statements with pagination based on given symbol.
+
+        Args:
+            symbol (str): Company stock symbol
+            page (int): Page number, default 1
+            offset (int): Number of records per page, default 10
+
+        Returns:
+            dict: Dictionary containing list of statements, pagination info and status message
+        """
         try:
             total = self.__session.query(IncomeStatement.id).filter(IncomeStatement.symbol == symbol).count()
             records = (self.__session.query(IncomeStatement)
-                      .filter(IncomeStatement.symbol == symbol)
-                      .order_by(IncomeStatement.date.desc())
-                      .offset((page - 1) * offset)
-                      .limit(offset)
-                      .all())
+                       .filter(IncomeStatement.symbol == symbol)
+                       .order_by(IncomeStatement.date.desc())
+                       .offset((page - 1) * offset)
+                       .limit(offset)
+                       .all())
             return {
                 "data": [record.to_dict() for record in records],
                 "pagination": {
@@ -62,6 +89,16 @@ class IncomeHandler:
             return {"error": str(e)}
 
     def update(self, id, data):
+        """
+        Update income statement based on given statement ID and new data.
+
+        Args:
+            id (int): Statement unique ID
+            data (dict): New data for updating the statement
+
+        Returns:
+            dict: Message indicating success/failure of the update operation
+        """
         try:
             record = self.__session.query(IncomeStatement).filter(IncomeStatement.id == id).first()
             if not record:
@@ -77,6 +114,15 @@ class IncomeHandler:
             return {"error": str(e)}
 
     def delete(self, id):
+        """
+        Delete income statement based on the statement ID.
+
+        Args:
+            id (int): Statement unique ID
+
+        Returns:
+            dict: Message indicating success/failure of the delete operation
+        """
         record = self.__session.query(IncomeStatement).filter(IncomeStatement.id == id).first()
         if not record:
             return {"error": "Record not found"}

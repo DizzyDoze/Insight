@@ -1,11 +1,28 @@
 from sqlalchemy.exc import SQLAlchemyError
 from models.cash_flow_statement import CashFlowStatement
 
+
 class CashFlowHandler:
+    """
+    MySQL operations on cash flow statements, handling create, read, update and delete.
+
+    Attributes:
+        __session: SQLAlchemy session for MySQL database connection
+    """
+
     def __init__(self, session):
         self.__session = session
 
     def create(self, data):
+        """
+        Insert a new cash flow statement into database from the given data.
+
+        Args:
+            data (dict): Dictionary containing cash flow statement data from FMP API
+
+        Returns:
+            dict: Message indicating success/failure and the record ID if successful
+        """
         try:
             cash_flow = CashFlowStatement(
                 symbol=data["symbol"],
@@ -57,14 +74,25 @@ class CashFlowHandler:
             return {"error": str(e)}
 
     def read(self, symbol, page=1, offset=10):
+        """
+        Retrieve cash flow statements with pagination based on given symbol.
+
+        Args:
+            symbol (str): Company stock symbol
+            page (int): Page number, default 1
+            offset (int): Number of records per page, default 10
+
+        Returns:
+            dict: Dictionary containing list of statements, pagination info and status message
+        """
         try:
             total = self.__session.query(CashFlowStatement.id).filter(CashFlowStatement.symbol == symbol).count()
             records = (self.__session.query(CashFlowStatement)
-                      .filter(CashFlowStatement.symbol == symbol)
-                      .order_by(CashFlowStatement.date.desc())
-                      .offset((page - 1) * offset)
-                      .limit(offset)
-                      .all())
+                       .filter(CashFlowStatement.symbol == symbol)
+                       .order_by(CashFlowStatement.date.desc())
+                       .offset((page - 1) * offset)
+                       .limit(offset)
+                       .all())
             return {
                 "data": [record.to_dict() for record in records],
                 "pagination": {
@@ -79,6 +107,16 @@ class CashFlowHandler:
             return {"error": str(e)}
 
     def update(self, id, data):
+        """
+        Update cash flow statement based on given statement ID and new data.
+
+        Args:
+            id (int): Statement unique ID
+            data (dict): New data for updating the statement
+
+        Returns:
+            dict: Message indicating success/failure and the record ID
+        """
         try:
             record = self.__session.query(CashFlowStatement).filter(CashFlowStatement.id == id).first()
             if record:
@@ -92,6 +130,15 @@ class CashFlowHandler:
             return {"error": str(e)}
 
     def delete(self, id):
+        """
+        Delete cash flow statement based on the statement ID.
+
+        Args:
+            id (int): Statement unique ID
+
+        Returns:
+            dict: Message indicating success/failure and the deleted record ID
+        """
         try:
             record = self.__session.query(CashFlowStatement).filter(CashFlowStatement.id == id).first()
             if record:
