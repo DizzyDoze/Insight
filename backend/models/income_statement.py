@@ -5,6 +5,20 @@ Base = declarative_base()
 
 
 class IncomeStatement(Base):
+    """
+    SQLAlchemy model for income statements.
+
+    Attributes:
+        id (int): Primary key
+        symbol (str): Company stock symbol
+        date (Date): Statement date
+        revenue (int): Total company revenue
+        gross_profit (int): Gross profit
+        operating_income (int): Operating income
+        net_income (int): Net income
+        eps (float): Earnings per share
+        ...etc
+    """
 
     __tablename__ = "income_statements"
 
@@ -35,6 +49,13 @@ class IncomeStatement(Base):
     )
 
     def to_dict(self):
+        """
+        Convert the IncomeStatement instance to a dictionary.
+
+        Returns:
+            dict: Dictionary containing all income statement data with
+                 dates converted to ISO format strings
+        """
         return {
             'id': self.id,
             'symbol': self.symbol,

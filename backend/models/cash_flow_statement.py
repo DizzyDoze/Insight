@@ -3,7 +3,17 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class CashFlowStatement(Base):
+    """
+    SQLAlchemy model for cash flow statements.
+
+    Attributes:
+        id (int): Primary key
+        symbol (str): Company stock symbol
+        date (Date): Statement date
+        ...etc
+    """
     __tablename__ = "cash_flow_statements"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -62,6 +72,13 @@ class CashFlowStatement(Base):
     )
 
     def to_dict(self):
+        """
+        Convert the CashFlowStatement instance to a dictionary.
+
+        Returns:
+            dict: Dictionary containing all cash flow statement data with
+                 dates converted to ISO format strings
+        """
         return {
             'id': self.id,
             'symbol': self.symbol,
