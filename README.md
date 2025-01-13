@@ -1,5 +1,8 @@
 # **Insight**
 
+<img width="2529" alt="image" src="https://github.com/user-attachments/assets/86d5202e-8f97-4647-ab82-dfa2e4100ccc" />
+
+
 A web application for filtering and analyzing financial data, including **Income Statements**, **Balance Sheets**, and **Cash Flow Statements** for publicly listed companies. The app allows users to fetch data, filter by key metrics, and sort the results.
 
 ### **Features**
@@ -20,12 +23,12 @@ A web application for filtering and analyzing financial data, including **Income
 ### **Frontend**
 - **React** with functional components
 - **TailwindCSS** for responsive styling
-- **AWS S3 + CloudFront** for deployment
+- **Vercel** for deployment
 
 ### **Backend**
 - **Python Flask** for API handling
 - **MySQL** database hosted on AWS RDS
-- **AWS Elastic Beanstalk** for backend deployment
+- **Render** for deployment
 
 ---
 
