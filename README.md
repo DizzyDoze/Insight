@@ -49,7 +49,22 @@ Follow these steps to run the project locally:
 git clone https://github.com/your-username/financial-filtering-app.git
 cd financial-filtering-app
 
-# 2. Set Up the Backend
+# 2. Set up the database
+cd sql
+# login DB and create database
+mysql> CREATE DATABASE insight;
+# create the tables using all creation files under sql dir
+mysql -u [username] -p [database_name] < createxxx.sql
+
+# 3. Fetch testing data
+# Set your FMP_API_KEY and database PASSWORD in the environment variables
+export FMP_API_KEY=<your fmp api key>
+export PASSWORD=<your MySQL db password>
+
+# Download statements for top 100 symbols and store to DB
+python -m fetchers.fundamental_fetcher
+
+# 4. Set Up the Backend
 cd backend
 
 # Install required Python packages
@@ -60,14 +75,10 @@ pip install -r requirements.txt
 DATABASE_NAME = "insight"
 HOST = "localhost"
 
-# Set your FMP_API_KEY and database PASSWORD in the environment variables
-export FMP_API_KEY=<your fmp api key>
-export PASSWORD=<your MySQL db password>
-
 # Run the Flask backend
 python app.py
 
-# 3. Set Up the Frontend
+# 5. Set Up the Frontend
 cd ../frontend
 
 # Install the required npm packages
