@@ -16,3 +16,5 @@ def index():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=False)
+    # production env, use below
+    # gunicorn --bind 0.0.0.0:9999 app:app
