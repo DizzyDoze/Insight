@@ -6,7 +6,7 @@ from blueprints.statement import statement_bp
 app = Flask(__name__)
 app.register_blueprint(statement_bp, url_prefix="/api")
 
-CORS(app)
+CORS(app)  # allow all origins to access this service
 
 
 @app.route("/")
