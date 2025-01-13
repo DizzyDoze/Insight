@@ -1,7 +1,7 @@
 import {useState, useEffect} from "react";
-import { Card, CardHeader, CardTitle, CardContent } from './components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { ChevronUp, ChevronDown } from 'lucide-react';
-import { Slider } from './components/ui/slider';
+import { Slider } from './ui/slider';
 
 /**
  * Component for displaying and filtering cash flow statements
@@ -47,7 +47,8 @@ const CashFlowStatement = () => {
         fetchData();
     }, []);
 
-    const BASE_URL = "http://localhost:8080/api/cash-flow-statement";
+    const BACKEND_HOST = "insight-lirl.onrender.com";
+    const BASE_URL = `https://${BACKEND_HOST}/api/cash-flow-statement`;
 
     /**
      * Fetches cash flow statement data from backend API

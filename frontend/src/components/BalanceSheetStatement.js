@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
-import {Card, CardContent, CardHeader, CardTitle} from './components/ui/card';
+import {Card, CardContent, CardHeader, CardTitle} from './ui/card';
 import {ChevronDown, ChevronUp} from 'lucide-react';
-import {Slider} from './components/ui/slider';
+import {Slider} from './ui/slider';
 
 /**
  * Component for displaying and filtering balance sheet statements
@@ -47,7 +47,8 @@ const BalanceSheetStatement = () => {
         fetchData();
     }, []);
 
-    const BASE_URL = "http://localhost:8080/api/balance-sheet-statement";
+    const BACKEND_HOST = "insight-lirl.onrender.com";
+    const BASE_URL = `https://${BACKEND_HOST}/api/balance-sheet-statement`;
 
     // fetch data from backend
     const fetchData = async () => {
